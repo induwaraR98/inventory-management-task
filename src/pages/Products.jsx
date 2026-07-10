@@ -4,6 +4,7 @@ import ProductFilters from '../components/products/ProductFilters';
 import ProductTable from '../components/products/ProductTable';
 import ProductCard from '../components/products/ProductCard';
 import BulkActionsBar from '../components/products/BulkActionsBar';
+import { exportProductsToCSV } from '../utils/csvExport';
 import { Plus, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // These modals are imported in Step 5 (form) and Step 6 (stock)
@@ -141,26 +142,8 @@ export default function Products() {
     setBulkRestockOpen(true);
   };
 
-  // CSV Export
   const handleExport = () => {
-    const headers = ['SKU', 'Name', 'Category', 'Price', 'Stock', 'Status', 'Created'];
-    const rows = filtered.map((p) => [
-      p.id,
-      `"${p.name.replace(/"/g, '""')}"`,
-      p.category,
-      p.price.toFixed(2),
-      p.stock,
-      p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? 'Low Stock' : 'In Stock',
-      new Date(p.createdAt).toLocaleDateString(),
-    ]);
-    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `inventory-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportProductsToCSV(filtered, 'inventory');
   };
 
   return (
